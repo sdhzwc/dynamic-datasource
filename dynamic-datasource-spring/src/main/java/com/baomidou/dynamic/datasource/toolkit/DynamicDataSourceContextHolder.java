@@ -37,7 +37,7 @@ public final class DynamicDataSourceContextHolder {
      * 传统的只设置当前线程的方式不能满足此业务需求，必须使用栈，后进先出。
      * </pre>
      */
-    private static final ThreadLocal<Deque<String>> LOOKUP_KEY_HOLDER = new NamedThreadLocal<Deque<String>>("dynamic-datasource") {
+    private static ThreadLocal<Deque<String>> LOOKUP_KEY_HOLDER = new NamedThreadLocal<Deque<String>>("dynamic-datasource") {
         @Override
         protected Deque<String> initialValue() {
             return new ArrayDeque<>();
@@ -93,5 +93,16 @@ public final class DynamicDataSourceContextHolder {
      */
     public static void clear() {
         LOOKUP_KEY_HOLDER.remove();
+    }
+
+
+    /**
+     * 设置LOOKUP_KEY_HOLDER
+     * <p>
+     * 用户自定义ThreadLocal具体实现类,解决多线程下数据源切换失败问题
+     * </p>
+     */
+    public static void setLookupKeyHolder(ThreadLocal<Deque<String>> lookupKeyHolder) {
+        DynamicDataSourceContextHolder.LOOKUP_KEY_HOLDER = lookupKeyHolder;
     }
 }
