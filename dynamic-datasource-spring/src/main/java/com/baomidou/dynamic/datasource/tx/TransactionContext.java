@@ -15,14 +15,20 @@
  */
 package com.baomidou.dynamic.datasource.tx;
 
-import org.springframework.util.StringUtils;
+import com.baomidou.dynamic.datasource.toolkit.DsStrUtils;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.transaction.support.TransactionSynchronization;
+
+import java.util.*;
 
 /**
- * @author funkye
+ * @author funkye zp
  */
 public class TransactionContext {
 
     private static final ThreadLocal<String> CONTEXT_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<Set<TransactionSynchronization>> SYNCHRONIZATION_HOLDER =
+            ThreadLocal.withInitial(LinkedHashSet::new);
 
     /**
      * Gets xid.
@@ -31,7 +37,7 @@ public class TransactionContext {
      */
     public static String getXID() {
         String xid = CONTEXT_HOLDER.get();
-        if (!StringUtils.isEmpty(xid)) {
+        if (!DsStrUtils.isEmpty(xid)) {
             return xid;
         }
         return null;
@@ -64,6 +70,44 @@ public class TransactionContext {
      */
     public static void remove() {
         CONTEXT_HOLDER.remove();
+    }
+
+    /**
+     * Register synchronization.
+     *
+     * @param synchronization 事务同步信息
+     */
+    public static void registerSynchronization(TransactionSynchronization synchronization) {
+        if (Objects.isNull(synchronization)) {
+            throw new IllegalArgumentException("TransactionSynchronization must not be null");
+        }
+        Set<TransactionSynchronization> synchs = SYNCHRONIZATION_HOLDER.get();
+        synchs.add(synchronization);
+    }
+
+    /**
+     * Get synchronization list.
+     *
+     * @return List<TransactionSynchronization> synchronizations
+     */
+    public static List<TransactionSynchronization> getSynchronizations() {
+        Set<TransactionSynchronization> synchs = SYNCHRONIZATION_HOLDER.get();
+        //to avoid ConcurrentModificationExceptions.
+        if (synchs.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            // Sort lazily here, not in registerSynchronization.
+            List<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchs);
+            AnnotationAwareOrderComparator.sort(sortedSynchs);
+            return Collections.unmodifiableList(sortedSynchs);
+        }
+    }
+
+    /**
+     * Remove synchronizations.
+     */
+    public static void removeSynchronizations() {
+        SYNCHRONIZATION_HOLDER.remove();
     }
 
 }

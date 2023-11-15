@@ -269,12 +269,13 @@ public class DataSourceClassResolver {
      * @param ae AnnotatedElement
      * @return 数据源映射持有者
      */
+    @SuppressWarnings("unchecked")
     private <T> BasicAttribute<T> findDataSourceAttribute(AnnotatedElement ae, Class<? extends Annotation> annotation) {
         if (annotation.isAssignableFrom(DS.class)) {
             //AnnotatedElementUtils.findMergedAnnotation()会委托给findMergedAnnotationAttributes()
             DS ds = AnnotatedElementUtils.findMergedAnnotation(ae, DS.class);
             if (ds != null) {
-                return (BasicAttribute<T>) new BasicAttribute<>(ds.value());
+                return new BasicAttribute(ds.value());
             }
         } else if (annotation.isAssignableFrom(DSTransactional.class)) {
             DSTransactional dsTransactional = AnnotatedElementUtils.findMergedAnnotation(ae, DSTransactional.class);
@@ -283,7 +284,7 @@ public class DataSourceClassResolver {
                 transactionalInfo.setPropagation(dsTransactional.propagation());
                 transactionalInfo.setRollbackFor(dsTransactional.rollbackFor());
                 transactionalInfo.setNoRollbackFor(dsTransactional.noRollbackFor());
-                return (BasicAttribute<T>) new BasicAttribute(transactionalInfo);
+                return new BasicAttribute(transactionalInfo);
             }
         }
         return null;
