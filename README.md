@@ -45,6 +45,10 @@ dynamic-datasource-spring-boot-starter 是一个基于springboot的快速集成�
 
 详细文档 https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611
 
+## 贡献 | Contributing
+
+我们欢迎社区的贡献，请查看 [CONTRIBUTING.md](./CONTRIBUTING.md) 。
+
 # 特性
 
 - 支持 **数据源分组** ，适用于多种场景 纯粹多库 读写分离 一主多从 混合模式。
@@ -127,35 +131,43 @@ spring:
         #以上会配置一个默认库master，一个组slave下有两个子库slave_1,slave_2
 ```
 
+**多主多从：**
 ```yaml
-# 多主多从                      纯粹多库（记得设置primary）                   混合配置
 spring:
-  spring:
-    spring:
-    datasource:
+  datasource:
+    dynamic:
       datasource:
-        datasource:
-        dynamic:
-          dynamic:
-            dynamic:
-            datasource:
-              datasource:
-                datasource:
-                master_1:
-                  mysql:
-                    master:
-                master_2:
-                  oracle:
-                    slave_1:
-                slave_1:
-                  sqlserver:
-                    slave_2:
-                slave_2:
-                  postgresql:
-                    oracle_1:
-                slave_3:
-                  h2:
-                    oracle_2:
+        master_1:
+        master_2:
+        slave_1:
+        slave_2:
+        slave_3:
+```
+
+**纯粹多库：**
+```yaml
+spring:
+  datasource:
+    dynamic:
+      datasource:
+        mysql:
+        oracle:
+        sqlserver:
+        postgresql:
+        h2:
+```
+
+**混合配置：**
+```yaml
+spring:
+  datasource:
+    dynamic:
+      datasource:
+        master:
+        slave_1:
+        slave_2:
+        oracle_1:
+        oracle_2:
 ```
 
 3. 使用  **@DS**  切换数据源。
